@@ -1,0 +1,26 @@
+name: Build App
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build App
+      run: dotnet publish -r win-x64 -c Release
+
+    - name: Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          MsSqlDataDumpScriptSplitter/bin/Release/net8.0/win-x64/publish/mssql_data_dump_script_splitter.exe
