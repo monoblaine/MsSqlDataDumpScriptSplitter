@@ -1,6 +1,3 @@
-//ş
-using System;
-using System.Collections.Generic;
 using State = MsSqlDataDumpScriptSplitter.StateMachines.States.IdentityInsert;
 
 namespace MsSqlDataDumpScriptSplitter.StateMachines;
@@ -8,7 +5,7 @@ namespace MsSqlDataDumpScriptSplitter.StateMachines;
 internal class IdentityInsertStateMachine : StateMachine<State> {
     private static readonly BytePattern<State> Begin = new(
         state: State.Begin,
-        pattern: new Byte[] {
+        pattern: [
             // `SET IDENTITY_INSERT [dbo].[`
             0x53, 0x00, 0x45, 0x00, 0x54, 0x00, 0x20, 0x00,
             0x49, 0x00, 0x44, 0x00, 0x45, 0x00, 0x4E, 0x00,
@@ -17,42 +14,42 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
             0x45, 0x00, 0x52, 0x00, 0x54, 0x00, 0x20, 0x00,
             0x5B, 0x00, 0x64, 0x00, 0x62, 0x00, 0x6F, 0x00,
             0x5D, 0x00, 0x2E, 0x00, 0x5B, 0x00
-        },
+        ],
         expectedExistingByteCount: 0
     );
 
     private static readonly BytePattern<State> AfterTableName = new(
         state: State.AfterTableName,
-        pattern: new Byte[] {
+        pattern: [
             // `] O`
             0x5D, 0x00, 0x20, 0x00, 0x4F, 0x00
-        },
+        ],
         expectedExistingByteCount: Begin.ExpectedByteCountOnFullCapture
     );
 
     private static readonly BytePattern<State> EndByOn = new(
         state: State.EndByOn,
-        pattern: new Byte[] {
+        pattern: [
             /*
              * `N \r\n`
              */
             0x4E, 0x00, 0x20, 0x00, 0x0D, 0x00, 0x0A, 0x00
-        },
+        ],
         expectedExistingByteCount: AfterTableName.ExpectedByteCountOnFullCapture
     );
 
     private static readonly BytePattern<State> EndByOffGo = new(
         state: State.EndByOffGo,
-        pattern: new Byte[] {
+        pattern: [
             // `FF\r\nGO\r\n`
             0x46, 0x00, 0x46, 0x00, 0x0D, 0x00, 0x0A, 0x00,
             0x47, 0x00, 0x4F, 0x00, 0x0D, 0x00, 0x0A, 0x00
-        },
+        ],
         expectedExistingByteCount: AfterTableName.ExpectedByteCountOnFullCapture
     );
 
-    private readonly List<Byte> currentIdentityInsertTable = new();
-    private readonly List<Byte> tmpIdentityInsertTable = new();
+    private readonly List<Byte> currentIdentityInsertTable = [];
+    private readonly List<Byte> tmpIdentityInsertTable = [];
 
     public override void ProcessValue (Byte value) {
         switch (CurrentState) {
@@ -129,6 +126,6 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
         statement.AddRange(currentIdentityInsertTable);
         statement.AddRange(AfterTableName.Pattern);
         statement.AddRange(EndByOn.Pattern);
-        return statement.ToArray();
+        return [.. statement];
     }
 }

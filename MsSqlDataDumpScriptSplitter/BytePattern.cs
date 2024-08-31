@@ -1,28 +1,17 @@
-//ş
-using System;
-using System.Collections.Generic;
-
 namespace MsSqlDataDumpScriptSplitter;
 
-internal class BytePattern<TState> where TState : Enum {
-    public BytePattern (TState state, Byte[] pattern, Int32 expectedExistingByteCount) {
-        State = state;
-        Pattern = pattern;
-        ExpectedExistingByteCount = expectedExistingByteCount;
-        ExpectedByteCountOnFullCapture = expectedExistingByteCount + pattern.Length;
-    }
+internal class BytePattern<TState> (TState state, Byte[] pattern, Int32 expectedExistingByteCount) where TState : Enum {
+    private TState State { get; } = state;
 
-    private TState State { get; }
+    public Byte[] Pattern { get; } = pattern;
 
-    public Byte[] Pattern { get; }
+    private Int32 ExpectedExistingByteCount { get; } = expectedExistingByteCount;
 
-    private Int32 ExpectedExistingByteCount { get; }
-
-    public Int32 ExpectedByteCountOnFullCapture { get; }
+    public Int32 ExpectedByteCountOnFullCapture { get; } = expectedExistingByteCount + pattern.Length;
 
     private Boolean StartsWith (Byte value) => value == Pattern[0];
 
-    public Boolean TryStartCapturing (List<Byte> capturedBytes, Byte value, ref TState currentState) {
+    public Boolean TryStartCapturing (List<Byte> capturedBytes, Byte value, ref TState? currentState) {
         var success = StartsWith(value);
         if (success) {
             currentState = State;
@@ -34,7 +23,7 @@ internal class BytePattern<TState> where TState : Enum {
         return success;
     }
 
-    public Boolean TryCaptureNext (List<Byte> capturedBytes, Byte value, ref TState currentState) {
+    public Boolean TryCaptureNext (List<Byte> capturedBytes, Byte value, ref TState? currentState) {
         var isExpectedValue = value == Pattern[capturedBytes.Count - ExpectedExistingByteCount];
         if (isExpectedValue) {
             capturedBytes.Add(value);

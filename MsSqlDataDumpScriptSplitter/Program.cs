@@ -1,11 +1,9 @@
-//ş
-using System;
-using System.IO;
-using System.Linq;
+using System.Text;
 
 namespace MsSqlDataDumpScriptSplitter;
 
 internal class Program {
+    private static readonly Encoding UTF8WithoutBom = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
     private const Int32 sizeOfByteBag = 8;
     private static readonly UInt64 LowerCaseGo = ToBagOfBytes(
         // `go\r\n`
@@ -15,8 +13,8 @@ internal class Program {
         // `GO\r\n`
         0x47, 0x00, 0x4F, 0x00, 0x0D, 0x00, 0x0A, 0x00
     );
-    private static readonly Byte[] UTF16LE_BOM = { 0xFF, 0xFE };
-    private static readonly Byte[] SetAnsiNullsAndQuotedIdentifierOnGo = {
+    private static readonly Byte[] UTF16LE_BOM = [0xFF, 0xFE];
+    private static readonly Byte[] SetAnsiNullsAndQuotedIdentifierOnGo = [
         // `SET ANSI_NULLS ON\r\nGO\r\nSET QUOTED_IDENTIFIER ON\r\nGO\r\n\r\n`
         0x53, 0x00, 0x45, 0x00, 0x54, 0x00, 0x20, 0x00,
         0x41, 0x00, 0x4e, 0x00, 0x53, 0x00, 0x49, 0x00,
@@ -32,14 +30,14 @@ internal class Program {
         0x20, 0x00, 0x4f, 0x00, 0x4e, 0x00, 0x0d, 0x00,
         0x0a, 0x00, 0x47, 0x00, 0x4f, 0x00, 0x0d, 0x00,
         0x0a, 0x00, 0x0d, 0x00, 0x0a, 0x00
-    };
+    ];
 
     private static void Main (String[] args) {
         if (args.Length < 2) {
-            Console.WriteLine("Usage: MsSqlDataDumpScriptSplitter.exe <pathToInputFile> <pathToOutputDir> [fileSizeLimitMB (defaults to 1024 MB)]");
+            Console.WriteLine("Usage: mssql_data_dump_script_splitter.exe <pathToInputFile> <pathToOutputDir> [fileSizeLimitMB (defaults to 1024 MB)]");
             return;
         }
-
+        Console.OutputEncoding = UTF8WithoutBom;
         var pathToInputFile = new FileInfo(Path.GetFullPath(args[0]));
         var pathToOutputDir = new DirectoryInfo(Path.GetFullPath(args[1]));
         var fileSizeLimitMB = args.Length < 3 ? 1024 : Int32.Parse(args[2]);
@@ -47,14 +45,14 @@ internal class Program {
         var inputFileNameWithoutExtension = Path.GetFileNameWithoutExtension(pathToInputFile.Name);
         var inputFileExtension = pathToInputFile.Extension;
         Int32 fileIndexDigitSize;
-        String formatStr = null;
+        String? formatStr = null;
         String createPathToOutputFile (Int32 ix) => Path.Combine(
             pathToOutputDir.FullName,
             $"{inputFileNameWithoutExtension}_{ix.ToString(formatStr ??= "0".PadLeft(fileIndexDigitSize, '0'))}{inputFileExtension}"
         );
         var outputFileIx = 0;
         using var reader = pathToInputFile.OpenRead();
-        FileStream writer = null;
+        FileStream? writer = null;
         Int64 totalBytesRead = UTF16LE_BOM.Length;
         Int32 byteRead;
         var currentBagOfBytes = 0ul;

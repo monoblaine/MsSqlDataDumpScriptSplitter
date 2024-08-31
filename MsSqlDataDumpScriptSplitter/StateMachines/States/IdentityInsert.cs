@@ -1,6 +1,3 @@
-//ş
-using System;
-
 namespace MsSqlDataDumpScriptSplitter.StateMachines.States;
 
 public enum IdentityInsert : Byte {
