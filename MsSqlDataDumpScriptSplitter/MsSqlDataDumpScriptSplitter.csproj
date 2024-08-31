@@ -9,7 +9,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <AssemblyName>mssql_data_dump_script_splitter</AssemblyName>
     <Authors>Serhan Apaydın</Authors>
-    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionPrefix>1.0.0</VersionPrefix>
     <Description>Splits huge SQL Server data dump scripts into chunks sqlcmd can handle</Description>
     <Copyright>Copyright © Serhan Apaydın 2024</Copyright>
   </PropertyGroup>
