@@ -113,7 +113,7 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
         }
     }
 
-    public Boolean HasIdentityInsertTable => currentIdentityInsertTable.Count > 0;
+    public Boolean HasIdentityInsertTable => currentIdentityInsertTable.Count > 0 && !EndByOffGo.IsFullyCaptured(CapturedBytes);
 
     public Byte[] CreateStatement () {
         var statement = new List<Byte>(
