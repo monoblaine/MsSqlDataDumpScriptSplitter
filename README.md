@@ -5,7 +5,7 @@ This tool splits your huge SQL Server data dump scripts into smaller/executable 
 Usage:
 
 ```
-MsSqlDataDumpScriptSplitter.exe <pathToInputFile> <pathToOutputDir> [fileSizeLimitMB (defaults to 1024 MB)]
+mssql_data_dump_script_splitter.exe <pathToInputFile> <pathToOutputDir> [fileSizeLimitMB (defaults to 1024 MB)]
 ```
 
 The reason for this tool to exist is that [sqlcmd](https://docs.microsoft.com/en-us/sql/tools/sqlcmd-utility) cannot handle files with size over 2 GBs (AFAIK). This tool splits the dump file by simultaneously reading and writing one byte at a time and when the number of bytes read exceeds the given limit it continues on writing to the current chunk until it finds a batch separator (Hard coded as `GO`).
