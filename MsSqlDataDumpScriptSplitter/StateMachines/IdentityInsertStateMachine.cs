@@ -9,6 +9,7 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
     private static readonly BytePattern<State> Begin = new(
         state: State.Begin,
         pattern: new Byte[] {
+            // `SET IDENTITY_INSERT [dbo].[`
             0x53, 0x00, 0x45, 0x00, 0x54, 0x00, 0x20, 0x00,
             0x49, 0x00, 0x44, 0x00, 0x45, 0x00, 0x4E, 0x00,
             0x54, 0x00, 0x49, 0x00, 0x54, 0x00, 0x59, 0x00,
@@ -23,6 +24,7 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
     private static readonly BytePattern<State> AfterTableName = new(
         state: State.AfterTableName,
         pattern: new Byte[] {
+            // `] O`
             0x5D, 0x00, 0x20, 0x00, 0x4F, 0x00
         },
         expectedExistingByteCount: Begin.ExpectedByteCountOnFullCapture
@@ -31,6 +33,9 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
     private static readonly BytePattern<State> EndByOn = new(
         state: State.EndByOn,
         pattern: new Byte[] {
+            /*
+             * `N \r\n`
+             */
             0x4E, 0x00, 0x20, 0x00, 0x0D, 0x00, 0x0A, 0x00
         },
         expectedExistingByteCount: AfterTableName.ExpectedByteCountOnFullCapture
@@ -39,6 +44,7 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
     private static readonly BytePattern<State> EndByOffGo = new(
         state: State.EndByOffGo,
         pattern: new Byte[] {
+            // `FF\r\nGO\r\n`
             0x46, 0x00, 0x46, 0x00, 0x0D, 0x00, 0x0A, 0x00,
             0x47, 0x00, 0x4F, 0x00, 0x0D, 0x00, 0x0A, 0x00
         },
