@@ -59,7 +59,6 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
             case State.None:
                 Begin.TryStartCapturing(CapturedBytes, value, ref CurrentState);
                 break;
-
             case State.Begin:
                 if (Begin.IsFullyCaptured(CapturedBytes)) {
                     tmpIdentityInsertTable.Clear();
@@ -70,13 +69,11 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
                     Begin.TryCaptureNext(CapturedBytes, value, ref CurrentState);
                 }
                 break;
-
             case State.TableName:
                 if (!AfterTableName.TryStartCapturing(CapturedBytes, value, ref CurrentState)) {
                     tmpIdentityInsertTable.Add(value);
                 }
                 break;
-
             case State.AfterTableName:
                 if (AfterTableName.IsFullyCaptured(CapturedBytes)) {
                     if (
@@ -90,7 +87,6 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
                     AfterTableName.TryCaptureNext(CapturedBytes, value, ref CurrentState);
                 }
                 break;
-
             case State.EndByOn:
                 if (EndByOn.IsFullyCaptured(CapturedBytes)) {
                     currentIdentityInsertTable.Clear();
@@ -104,7 +100,6 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
                     EndByOn.TryCaptureNext(CapturedBytes, value, ref CurrentState);
                 }
                 break;
-
             case State.EndByOffGo:
                 if (EndByOffGo.IsFullyCaptured(CapturedBytes)) {
                     Console.WriteLine($"set identity_insert [dbo].[{System.Text.Encoding.Unicode.GetString(tmpIdentityInsertTable.ToArray())}] off");
@@ -116,7 +111,6 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
                     EndByOffGo.TryCaptureNext(CapturedBytes, value, ref CurrentState);
                 }
                 break;
-
             default:
                 throw new NotImplementedException();
         }
@@ -131,12 +125,10 @@ internal class IdentityInsertStateMachine : StateMachine<State> {
             AfterTableName.Pattern.Length +
             EndByOn.Pattern.Length
         );
-
         statement.AddRange(Begin.Pattern);
         statement.AddRange(currentIdentityInsertTable);
         statement.AddRange(AfterTableName.Pattern);
         statement.AddRange(EndByOn.Pattern);
-
         return statement.ToArray();
     }
 }

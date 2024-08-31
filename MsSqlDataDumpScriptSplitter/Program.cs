@@ -59,28 +59,23 @@ internal class Program {
         Int32 byteRead;
         var currentBagOfBytes = 0ul;
         var iiStateMachine = new StateMachines.IdentityInsertStateMachine();
-
         Directory.CreateDirectory(pathToOutputDir.FullName);
         fileIndexDigitSize = GetNumOfDigits((Int32) Math.Ceiling(reader.Length / (Double) fileSizeLimitInBytes));
         reader.Seek(UTF16LE_BOM.Length, SeekOrigin.Begin); // skip BOM
-
         while ((byteRead = reader.ReadByte()) != -1) {
             if (writer == null) {
                 writer = File.OpenWrite(createPathToOutputFile(outputFileIx++));
                 writer.Write(UTF16LE_BOM, 0, UTF16LE_BOM.Length);
                 writer.Write(SetAnsiNullsAndQuotedIdentifierOnGo, 0, SetAnsiNullsAndQuotedIdentifierOnGo.Length);
-
                 if (iiStateMachine.HasIdentityInsertTable) {
                     var setIdentityInsertOn = iiStateMachine.CreateStatement();
                     writer.Write(setIdentityInsertOn, 0, setIdentityInsertOn.Length);
                 }
             }
-
             var byteValue = (Byte) byteRead;
             currentBagOfBytes = (currentBagOfBytes << 8) | byteValue;
             iiStateMachine.ProcessValue(byteValue);
             writer.WriteByte(byteValue);
-
             if (++totalBytesRead >= fileSizeLimitInBytes && IsGo(currentBagOfBytes)) {
                 writer.Dispose();
                 writer = null;
@@ -88,17 +83,15 @@ internal class Program {
                 currentBagOfBytes = 0ul;
             }
         }
-
         writer?.Dispose();
     }
 
     private static Int32 GetNumOfDigits (Int32 number) {
         var numOfDigits = 0;
-
-        do
+        do {
             numOfDigits++;
+        }
         while ((number /= 10) != 0);
-
         return numOfDigits;
     }
 
@@ -106,7 +99,6 @@ internal class Program {
         if (bytes.Length != sizeOfByteBag) {
             throw new ArgumentException("nope", nameof(bytes));
         }
-
         return bytes
             .Select((b, ix) => ((UInt64) b) << (8 * (sizeOfByteBag - 1 - ix)))
             .Aggregate(0ul, (acc, cur) => acc | cur);
