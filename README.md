@@ -22,8 +22,26 @@ The reason for this tool to exist is that [sqlcmd](https://docs.microsoft.com/en
 
 ## Executing The Splitted Files
 
-You can use the following batch script to execute all the files sequentially.
+If you're executing the scripts against an existing database I strongly suggest you use `set nocount on` before you start by using the following command:
+
+```sql
+exec sp_configure 'user options' 512
+reconfigure
+```
+
+You can use one of the scripts below to execute all the files sequentially.
 
 ```bat
-for %%G in (*.sql) do sqlcmd /S <InstanceName> -E -i"%%G"
+:: Windows batch file
+for %%G in (*.sql) do sqlcmd -S <server name> -d <database name> -E -i "%%G"
+```
+
+or
+
+```sh
+#!/bin/bash
+
+for file_name in ./*.sql; do
+    sqlcmd -S <server name> -d <database name> -E -i $file_name
+done
 ```
